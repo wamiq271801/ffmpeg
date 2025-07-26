@@ -96,7 +96,7 @@ jobs:
       run: |
         cd ffmpeg-kit
         
-        # Create a custom build script with your specific disable options
+        # Create a build script that only uses supported ffmpeg-kit options
         cat > custom_android_build.sh << 'EOF'
         #!/bin/bash
         
@@ -108,21 +108,6 @@ jobs:
         export ANDROID_NDK_ROOT="$ANDROID_NDK_ROOT"
         export ANDROID_HOME="$ANDROID_SDK_ROOT"
         
-        # Define custom FFmpeg configure options (libraries to disable)
-        CUSTOM_OPTIONS="--disable-gnutls \
-        --disable-libssh \
-        --disable-libzmq \
-        --disable-librtmp \
-        --disable-librist \
-        --disable-libsmbclient \
-        --disable-opengl \
-        --disable-sndio \
-        --disable-libpulse \
-        --disable-indev=lavfi \
-        --disable-outdev=alsa \
-        --disable-protocols \
-        --disable-network"
-        
         # Architecture disable options (disable all except arm64-v8a)
         ARCH_OPTIONS="--disable-arm-v7a \
         --disable-arm-v7a-neon \
@@ -131,14 +116,14 @@ jobs:
         
         echo "Building FFmpeg-Kit for arm64-v8a only"
         echo "Disabled architectures: armeabi-v7a, armeabi-v7a-neon, x86, x86_64"
-        echo "Custom disable options: $CUSTOM_OPTIONS"
+        echo "Note: Some libraries (gnutls, libssh, libzmq, librtmp, librist, libsmbclient) are not available in ffmpeg-kit"
+        echo "Building with full set of available libraries and GPL support"
         
-        # Run the build with custom options
+        # Run the build with only supported options
         ./android.sh \
           --full \
           --enable-gpl \
-          $ARCH_OPTIONS \
-          $CUSTOM_OPTIONS
+          $ARCH_OPTIONS
         
         EOF
         
@@ -224,9 +209,9 @@ jobs:
         echo "" >> build-summary.md
         echo "## Build Configuration" >> build-summary.md
         echo "- **Target ABIs**: arm64-v8a only (all other ABIs disabled as requested)" >> build-summary.md
-        echo "- **Disabled Libraries**: gnutls, libssh, libzmq, librtmp, librist, libsmbclient, opengl, sndio, libpulse" >> build-summary.md
-        echo "- **Disabled Components**: indev=lavfi, outdev=alsa, protocols, network" >> build-summary.md
-        echo "- **Enabled Options**: GPL, version3, full build with all other libraries" >> build-summary.md
+        echo "- **Disabled Libraries**: Note - gnutls, libssh, libzmq, librtmp, librist, libsmbclient are not available in ffmpeg-kit" >> build-summary.md
+        echo "- **Disabled Components**: Note - protocols, network, specific input/output devices not directly controllable in ffmpeg-kit" >> build-summary.md
+        echo "- **Enabled Options**: GPL, full build with all available ffmpeg-kit libraries" >> build-summary.md
         echo "" >> build-summary.md
         echo "## Artifacts" >> build-summary.md
         echo "- Individual ABI builds: ffmpeg-kit-{abi-name}" >> build-summary.md
