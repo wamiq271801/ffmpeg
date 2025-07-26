@@ -14,8 +14,8 @@ jobs:
     
     strategy:
       matrix:
-        # Build for all ABIs except arm64-v8a as requested
-        abi: [armeabi-v7a, x86, x86_64]
+        # Build only for arm64-v8a as requested
+        abi: [arm64-v8a]
     
     steps:
     - name: Checkout repository
@@ -201,8 +201,8 @@ jobs:
       run: |
         mkdir -p combined-build/
         
-        # Copy all ABI builds to combined directory
-        for abi in armeabi-v7a x86 x86_64; do
+        # Copy arm64-v8a build to combined directory
+        for abi in arm64-v8a; do
           if [ -d "artifacts/ffmpeg-kit-$abi" ]; then
             echo "Adding $abi to combined build"
             cp -r "artifacts/ffmpeg-kit-$abi"/* combined-build/ || true
@@ -215,7 +215,7 @@ jobs:
     - name: Upload combined build
       uses: actions/upload-artifact@v4
       with:
-        name: ffmpeg-kit-android-all-abis
+        name: ffmpeg-kit-arm64-v8a-only
         path: combined-build/
         retention-days: 90
         
@@ -224,7 +224,7 @@ jobs:
         echo "# FFmpeg-Kit Android Build Summary" > build-summary.md
         echo "" >> build-summary.md
         echo "## Build Configuration" >> build-summary.md
-        echo "- **Target ABIs**: armeabi-v7a, x86, x86_64 (arm64-v8a excluded as requested)" >> build-summary.md
+        echo "- **Target ABIs**: arm64-v8a only (all other ABIs disabled as requested)" >> build-summary.md
         echo "- **Disabled Libraries**: gnutls, libssh, libzmq, librtmp, librist, libsmbclient, opengl, sndio, libpulse" >> build-summary.md
         echo "- **Disabled Components**: indev=lavfi, outdev=alsa, protocols, network" >> build-summary.md
         echo "- **Enabled Options**: GPL, version3, full build with all other libraries" >> build-summary.md
